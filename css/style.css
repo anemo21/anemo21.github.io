@@ -222,14 +222,14 @@ canvas {
 .control {
     position: absolute;
     width: 100vw;
-    bottom: 0px;
-    height: 46px;
+    bottom: 5px;
+    height: 48px;
     color: var(--text-color);
     /* background-color: var(--bg-color); */
     display: flex;
     align-items: center;
     align-content: center;
-    font-size: 16px;
+    font-size: 36px;
     padding-top: 1px;
     /* border-top: 2.2px solid #B1B1ED; */
     mix-blend-mode: difference;
@@ -281,6 +281,11 @@ canvas {
 
 }
 
+.control__lyric {
+	margin: auto;
+	text-align: center;
+	text-shadow: 2px 2px #FFFFFF;
+}
 
 @keyframes marquee {
     0% {

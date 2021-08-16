@@ -47,6 +47,7 @@ var ringN3;
 var midRingP;
 var trebleRingP;
 var highMidRingP;
+var lrcStrings;
 
 function setup() {
   var cnv = createCanvas(windowWidth, windowHeight);
@@ -173,12 +174,11 @@ function draw() {
   }
   
   fill(color(colorMidRing(level, mid)));
-  
+  // mid cirlce
   fill(colorMid(level, mid));
   if (mid > 40) {
     ellipse(width / 2, height / 2, map(mid, 40, 255, 0, 400), map(mid, 40, 255, 0, 400));
   }
-  // mid cirlce
   //console.log(bass);
   if (peakDetect.isDetected && lowMid > 210 && mid > 168) {
     //console.log(mid);
@@ -202,16 +202,17 @@ function draw() {
     noFill();
     ellipse(width / 2, height / 2, s1, s1);
   }
-  
   noStroke();
   
+  //treble diamond
   fill(colorTreble(level, treble));
   push();
   translate(width / 2, height / 2);
   rotate(radians(45));
-  rect(0, 0, map(treble, 0, 255, 0, 300), map(treble, 0, 255, 0, 300)); //treble diamond
+  rect(0, 0, map(treble, 0, 255, 0, 300), map(treble, 0, 255, 0, 300));
   pop();
   rectMode(CENTER);
+  //console.log(treble);
   if (peakDetect.isDetected && lowMid < 210 && mid > 168 && level > 0.16) {
     numofc = map(level, 0, 0.5, 1, 15);
     cposx = [];
@@ -325,9 +326,16 @@ function draw() {
   trebleC = 30 + treble;
 }
 function colorBass(bpm, bass) {
-  var h = map(bass, 40, 255, 120, 300);
-  var b = map(bass, 40, 150, 230, 300);
-  var s = map(bass, 40, 255, 240, 330);
+  h = map(bass, 0, 255, 100, 50);
+  b = map(bass, 0, 255, 240, 360);
+  s = map(bass, 0, 200, 180, 360);
+  //console.log(b);
+  return color(h, s, b);
+}
+function colorTreble(level, treble) {
+  h = map(treble, 40, 255, 300, 300);
+  b = map(treble, 40, 255, 300, 300);
+  s = map(treble, 40, 255, 240, 330);
   //console.log(b);
   return color(h, s, b);
 }
@@ -344,34 +352,26 @@ function colorMid(level, mid) {
   return color(h, s, b);
 }
 function colorMidRing(level, mid) {
-  var h = map(mid, 0, 200, 120, 45);
-  var b = map(level, 0, 0.4, 260, 360);
-  var s = map(level, 0, 0.4, 200, 360);
+  h = map(mid, 0, 200, 120, 45);
+  b = map(level, 0, 0.4, 260, 360);
+  s = map(level, 0, 0.4, 200, 360);
   return color(h, s, b);
 }
 function colorHighMidRing(level, highMid) {
-  var h = map(highMid, 0, 200, 160, 90);
-  var b = 360;
-  var s = 360;
+  h = map(highMid, 0, 200, 160, 90);
+  b = 360;
+  s = 360;
   return color(h, s, b);
 }
 function colorOuterRing(level, treble) {
-  var h = 0;
+  h = 0;
   return color(0, 0, 360);
 }
-function colorTreble(level, treble) {
-  var h = map(treble, 0, 255, 100, 50);
-  var b = 360
-  var s = map(treble, 0, 200, 180, 360);
-  //console.log(b);
-  return color(h, s, b);
-}
 function BackgroundC(level, treble, bass, bpm, lowMid, highMid, mid) {
-  var h = map(mid, 0, 255, 220, 310);
-  var s = 330;
-  var b = map(level, 0, 0.01, 70, 100);
+  h = map(mid, 0, 255, 220, 310);
+  s = 330;
+  b = map(level, 0, 0.01, 70, 100);
   if (level > 0.01) {
-    //console.log("hi")
     if (bass > 230 && lowMid > 210 && level > 0.3 && bass - treble > 90 && treble < 60 && mid > 144) {
       //console.log(level);
       //console.log("white");
@@ -400,6 +400,7 @@ function BackgroundC(level, treble, bass, bpm, lowMid, highMid, mid) {
   return color(h, s, b);
 }
 function loaded() {
+	lyric();
   if (!song.isPlaying()) {
 	//Auto
 	var remaining = 5;
@@ -413,9 +414,28 @@ function loaded() {
 		clearInterval(interval);
 	  }
 	}, 1000);
-
   } else {
     song.pause();
-    // playButton.html('Play');
   }
+}
+function lyric() {
+//console.log(lrcStrings);
+	lrcStrings = lrcStrings.join('\n');
+	// lrc.js library converts Strings to JSON
+	var lrcJSON = new Lrc(lrcStrings);
+	// iterate through each line of the LRC file to get a Time and Lyric
+	for (var i = 0; i < lrcJSON.lines.length; i++) {
+		var time = lrcJSON.lines[i].time;
+		var lyric = lrcJSON.lines[i].txt.valueOf();
+
+		// schedule events to trigger at specific times during song playback
+		song.addCue(time, showLyric, lyric);
+	}
+}
+// callback specified by addCue(time, callback, value).
+function showLyric(value) {
+	var lyric = value;
+	    lyricDiv = select('.control__lyric');
+		lyricDiv.style('color', 'rgba(' + int(random(0,255)) + ', ' + int(random(0,255)) + ', ' + int(random(0,255)) +', 255)' );
+		lyricDiv.html(lyric);
 }
